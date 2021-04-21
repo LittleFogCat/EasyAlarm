@@ -1,8 +1,6 @@
 # easy_alarm
 
-A new Flutter application.
-
-## Getting Started
+An alarm clock application using Flutter.
 
 This project is a starting point for a Flutter application.
 
