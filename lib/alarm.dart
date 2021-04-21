@@ -1,124 +1,7 @@
-import 'package:date_format/date_format.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:easy_alarm/add_alarm.dart';
 import 'package:easy_alarm/global.dart';
-import 'package:easy_alarm/db.dart';
+import 'package:flutter/material.dart';
 
-import 'db.dart';
-import 'main.dart';
-
-class AlarmListTile extends StatefulWidget {
-  final Alarm item;
-
-  AlarmListTile(this.item);
-
-  @override
-  State<StatefulWidget> createState() {
-    return _AlarmListTileState(item);
-  }
-}
-
-class _AlarmListTileState extends State<AlarmListTile> {
-  final _titleFont = TextStyle(fontSize: 24.0);
-  final _descFont = TextStyle(fontSize: 14, color: Colors.black45);
-  final _repeatFont = TextStyle(fontSize: 14, color: Colors.black87);
-  Alarm _item;
-
-  _AlarmListTileState(this._item);
-
-  @override
-  void didUpdateWidget(covariant AlarmListTile oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    print('_AlarmListTileState/ didUpdateWidget:');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    print('_AlarmListTileState/ build: $_item');
-    if (_item == null)
-      return Container(
-        width: 0,
-        height: 0,
-      );
-    return Opacity(
-      opacity: _item.enabled ? 1 : 0.5,
-      child: ListTile(
-        title: Row(
-          children: [
-            Text(
-              _item.getTimeString(),
-              style: _titleFont,
-            ),
-            Container(
-              child: Text(
-                _item.desc,
-                style: _descFont,
-              ),
-              padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
-            ),
-          ],
-          crossAxisAlignment: CrossAxisAlignment.end,
-        ),
-        subtitle: Text(_item.repeatToString(), style: _repeatFont),
-        trailing: Switch(
-          value: _item.enabled,
-          activeColor: Colors.green,
-          onChanged: (enabled) {
-            _enableAlarm(_item, !_item.enabled);
-          },
-        ),
-        onTap: () {
-          Pages.gotoPage(
-            context,
-            AddAlarmPage(_item),
-          ).then((value) {
-            if (value == null) return;
-            print('add alarm result: $value');
-            setState(() {
-              _item = value;
-            });
-          });
-        },
-        onLongPress: () {
-          showDialog<bool>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('删除当前闹钟？'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    AlarmStore().remove(_item.id).then((value) {
-                      Pages.goBack(context, true);
-                    });
-                  },
-                  child: Text('确定'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Pages.goBack(context, false);
-                  },
-                  child: Text('取消'),
-                ),
-              ],
-            ),
-          ).then((bool deleted) {
-            if (!deleted) return;
-            if (AlarmClockMain.instance != null) {
-              AlarmClockMain.instance.setState(() {});
-            }
-          });
-        },
-      ),
-    );
-  }
-
-  void _enableAlarm(Alarm item, bool isEnabled) {
-    item.enabled = isEnabled;
-    AlarmStore().update(item);
-    setState(() {});
-  }
-}
 
 /// 闹钟对应实体类
 class Alarm {
@@ -227,6 +110,6 @@ class Alarm {
 
   @override
   String toString() {
-    return 'Alarm{id: $id, enabled: $enabled, timeOfDay: $timeOfDay, repeat: $repeat, vibrate: $vibrate, desc: $desc, autoDelete: $autoDelete}';
+    return 'Alarm<${getTimeString()}>';
   }
 }

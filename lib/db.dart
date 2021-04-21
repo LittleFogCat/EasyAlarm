@@ -29,7 +29,9 @@ class AlarmStore {
     List<Alarm> alarms = await getAlarms(); // id从小到大排列
     if (alarm.id == 0 || alarms.length == 0) {
       // 是新的闹钟
-      alarm.id = alarms == null || alarms.length == 0 ? 1 : alarms[alarms.length - 1].id + 1;
+      int newId = _newId(alarms);
+      if(newId == -1) return false;
+      alarm.id = newId;
       alarms.add(alarm); // 添加到最后
     } else {
       // 已经存在的闹钟
@@ -71,7 +73,7 @@ class AlarmStore {
       _cachedAlarmList = await _loadAlarms();
     }
     if (_cachedAlarmList == null) _cachedAlarmList = []; // 不返回空值
-    _cachedAlarmList.sort((a, b) => a.id - b.id);
+    _cachedAlarmList.sort((a, b) => a.id - b.id); // 按id排序
     return _cachedAlarmList;
   }
 
@@ -91,6 +93,18 @@ class AlarmStore {
             map['repeat'] = repeatNew;
             return Alarm.fromJson(map);
           }).toList();
+  }
+
+  /// 获取一个最小的可获得的id
+  int _newId(List<Alarm> alarms) {
+    Set<int> idSet = Set();
+    for (Alarm a in alarms) {
+      idSet.add(a.id);
+    }
+    for (int i = 1; i <= 65535; i++) {
+      if(!idSet.contains(i)) return i;
+    }
+    return -1;
   }
 }
 
